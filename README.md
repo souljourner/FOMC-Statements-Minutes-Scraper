@@ -47,6 +47,13 @@ fomc = FOMC(base_url='https://www.federalreserve.gov',
 
 ```
 
-base_url: FOMC website base URL
-calendar_url: URL of where the current meetings are listed
-historical_date: year (int) where it is considered historical.  At this time of writing, 2011 was in the historical archive rather than in the current list.
+**base_url**: FOMC website base URL
+
+**calendar_url**: URL of where the current meetings are listed
+
+**historical_date**: year (int) where it is considered historical.  At this time of writing, 2011 was in the historical archive rather than in the current list.
+
+**verbose**: if set to False, will not print any output during scraping
+
+**max_treads**: the number of threads to use for web scraping
+
