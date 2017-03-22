@@ -11,16 +11,17 @@ class FOMC (object):
     '''
     A convenient class for extracting meeting minutes from the FOMC website
     Example Usage:  
-            fomc = FOMC()
-            df = fomc.get_statements()
-            fomc.pickle("./df_minutes.pickle")
+        fomc = FOMC()
+        df = fomc.get_statements()
+        fomc.pickle("./df_minutes.pickle")
     '''
 
     def __init__(self, base_url='https://www.federalreserve.gov', 
                  calendar_url='https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
                  historical_date = 2011,
                  verbose = True,
-                 max_threads = 10):
+                 max_threads = 10,
+                 remove_paragraphs = False):
 
         self.base_url = base_url
         self.calendar_url = calendar_url
@@ -31,8 +32,9 @@ class FOMC (object):
         self.verbose = verbose
         self.HISTORICAL_DATE = historical_date
         self.MAX_THREADS = max_threads
-
+        self.remove_paragraphs = remove_paragraphs
     
+
     def _get_links(self, from_year):
         '''
         private function that sets all the links for the FOMC meetings from the giving from_year
@@ -66,9 +68,12 @@ class FOMC (object):
         return date
 
 
-    def _add_article(self, link):
+    def _add_article(self, link, index=None):
         '''
-        returns the related article for 1 link
+        adds the related article for 1 link into the instance variable
+        index is the index in the article to add to. Due to concurrent
+        prcessing, we need to make sure the articles are stored in the
+        right order
         '''
         if self.verbose:
             sys.stdout.write(".")
@@ -79,35 +84,23 @@ class FOMC (object):
         statement_socket = urlopen(self.base_url + link)
         statement = BeautifulSoup(statement_socket, 'html.parser')
         paragraphs = statement.findAll('p')
-        self.articles.append([paragraph.get_text() for paragraph in paragraphs])
+        self.articles[index]= "\n\n".join([paragraph.get_text().strip() for paragraph in paragraphs])
 
 
-    def _get_articles(self):
-        if self.verbose:
-            print("Getting articles...")
-
-        self.dates, self.articles = [], []
-
-        for link in self.links:
-            self._add_article(link)
-
-        for row in range(len(self.articles)):
-            self.articles[row] = map(lambda x: x.strip(), self.articles[row])
-            words = " ".join(self.articles[row]).split()
-            self.articles[row] = " ".join(words)
-
-    
     def _get_articles_multi_threaded(self):
+        '''
+        gets all articles using multi-threading
+        '''
         if self.verbose:
             print("Getting articles - Multi-threaded...")
 
-        self.dates, self.articles = [], []
+        self.dates, self.articles = [], ['']*len(self.links)
         jobs = []
         # initiate and start threads:
         index = 0
         while index < len(self.links):
             if len(jobs) < self.MAX_THREADS:
-                t = threading.Thread(target=self._add_article, args=(self.links[index],))
+                t = threading.Thread(target=self._add_article, args=(self.links[index],index,))
                 jobs.append(t)
                 t.start()
                 index += 1
@@ -118,9 +111,13 @@ class FOMC (object):
             t.join()
 
         for row in range(len(self.articles)):
-            self.articles[row] = map(lambda x: x.strip(), self.articles[row])
-            words = " ".join(self.articles[row]).split()
-            self.articles[row] = " ".join(words)
+            
+            if self.remove_paragraphs:
+                self.articles[row] = map(lambda x: x.strip(), self.articles[row])
+                words = " ".join(self.articles[row]).split()
+                self.articles[row] = " ".join(words)
+            else:
+                self.articles[row] = self.articles[row].strip()
 
 
     def get_statements(self, from_year=1994):
@@ -132,15 +129,15 @@ class FOMC (object):
         parsing much older years
         '''
         self._get_links(from_year)
-        print("There are ",len(self.links), 'links')
-        #self._get_articles()
+        print("There are", len(self.links), 'statements')
         self._get_articles_multi_threaded()
 
         self.df = pd.DataFrame(self.articles, index = pd.to_datetime(self.dates)).sort_index()
+        self.df.columns = ['statements']
         return self.df
 
 
-    def pick_df(self, filename="df_minutes.pickle"):
+    def pick_df(self, filename="../data/minutes.pickle"):
         if filename:
             if self.verbose:
                 print("Writing to", filename)        
