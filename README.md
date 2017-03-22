@@ -6,7 +6,7 @@ This class by default uses 10 threads to speed up the scrapping time.
 Output by default is a Pandas Dataframe.  Also has the option to write to disk a picked Pandas Dataframe.
 
 
-### Author: John Zhu
+### Author: souljourner (John Zhu)
 
 
 ## EXAMPLE USAGE
