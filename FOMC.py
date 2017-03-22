@@ -11,6 +11,9 @@ class FOMC (object):
     '''
     A convenient class for extracting meeting minutes from the FOMC website
     Example Usage:  
+            fomc = FOMC()
+            df = fomc.get_statements()
+            fomc.pickle("./df_minutes.pickle")
     '''
 
     def __init__(self, base_url='https://www.federalreserve.gov', 
