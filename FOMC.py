@@ -20,8 +20,7 @@ class FOMC (object):
                  calendar_url='https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
                  historical_date = 2011,
                  verbose = True,
-                 max_threads = 10,
-                 remove_paragraphs = False):
+                 max_threads = 10):
 
         self.base_url = base_url
         self.calendar_url = calendar_url
@@ -32,7 +31,6 @@ class FOMC (object):
         self.verbose = verbose
         self.HISTORICAL_DATE = historical_date
         self.MAX_THREADS = max_threads
-        self.remove_paragraphs = remove_paragraphs
     
 
     def _get_links(self, from_year):
@@ -111,13 +109,7 @@ class FOMC (object):
             t.join()
 
         for row in range(len(self.articles)):
-            
-            if self.remove_paragraphs:
-                self.articles[row] = map(lambda x: x.strip(), self.articles[row])
-                words = " ".join(self.articles[row]).split()
-                self.articles[row] = " ".join(words)
-            else:
-                self.articles[row] = self.articles[row].strip()
+            self.articles[row] = self.articles[row].strip()
 
 
     def get_statements(self, from_year=1994):
