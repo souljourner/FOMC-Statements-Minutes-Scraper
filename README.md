@@ -55,5 +55,5 @@ fomc = FOMC(base_url='https://www.federalreserve.gov',
 
 **verbose**: if set to False, will not print any output during scraping
 
-**max_treads**: the number of threads to use for web scraping
+**max_threads**: the number of threads to use for web scraping
 
