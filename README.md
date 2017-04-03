@@ -1,5 +1,5 @@
 # FOMC-Statements-Minutes-Scraper
-A convenient class for scraping all the existing FOMC meeting statements.
+A convenient Python 3.5 class for scraping all the existing FOMC meeting statements.
 
 This class by default uses 10 threads to speed up the scrapping time.
 
