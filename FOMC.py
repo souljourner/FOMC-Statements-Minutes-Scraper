@@ -1,6 +1,6 @@
 from __future__ import print_function
 from bs4 import BeautifulSoup
-from urllib2 import urlopen
+from urllib.request import urlopen
 import re
 import pandas as pd
 import pickle
@@ -60,9 +60,9 @@ class FOMC (object):
     def _date_from_link(self, link):
         date = re.findall('[0-9]{8}', link)[0].encode('ascii')
         if date[4] == '0':
-            date = date[:4] + '/' + date[5:6] + '/' + date[6:]
+            date = str(date[:4]) + '/' + str(date[5:6]) + '/' + str(date[6:])
         else:
-            date = date[:4] + '/' + date[4:6] + '/' + date[6:]
+            date = str(date[:4]) + '/' + str(date[4:6]) + '/' + str(date[6:])
         return date
 
 
