@@ -3,7 +3,7 @@ A convenient Python 3.5 class for scraping all the existing FOMC meeting stateme
 
 This class by default uses 10 threads to speed up the scrapping time.
 
-Output by default is a Pandas Dataframe.  Also has the option to write to disk a picked Pandas Dataframe.
+Output by default is a Pandas Dataframe.  Also has the option to write to disk a pickled Pandas Dataframe.
 
 
 ### Author: souljourner (John Zhu)
@@ -16,7 +16,7 @@ Output by default is a Pandas Dataframe.  Also has the option to write to disk a
 ```bash
 $ python fomc.py
 ```
-This creates a pickle Pandas Dataframe of the meeting minutes with the dates as the index.
+This creates a pickled Pandas Dataframe of the meeting minutes with the dates as the index.
 
 
 
