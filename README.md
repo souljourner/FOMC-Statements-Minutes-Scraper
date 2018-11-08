@@ -41,9 +41,9 @@ All parameters are optional
 ```python
 fomc = FOMC(base_url='https://www.federalreserve.gov', 
             calendar_url='https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
-            historical_date = 2011,
-            verbose = True,
-            max_threads = 10)
+            historical_date=2011,
+            verbose=True,
+            max_threads=10)
 
 ```
 
