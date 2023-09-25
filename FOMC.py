@@ -1,6 +1,6 @@
 from __future__ import print_function
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 import re
 import pandas as pd
 import pickle
@@ -18,12 +18,13 @@ class FOMC (object):
 
     def __init__(self, base_url='https://www.federalreserve.gov', 
                  calendar_url='https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
-                 historical_date = 2011,
+                 historical_date = 2017,
                  verbose = True,
                  max_threads = 10):
 
         self.base_url = base_url
         self.calendar_url = calendar_url
+        self.headers = {"User-Agent": "Mozilla/5.0"}
         self.df = None
         self.links = None
         self.dates = None
@@ -41,7 +42,7 @@ class FOMC (object):
         if self.verbose:
             print("Getting links...")
         self.links = []
-        fomc_meetings_socket = urlopen(self.calendar_url)
+        fomc_meetings_socket = urlopen(Request(self.calendar_url, headers=self.headers))
         soup = BeautifulSoup(fomc_meetings_socket, 'html.parser')
 
         statements = soup.find_all('a', href=re.compile('^/newsevents/pressreleases/monetary\d{8}a.htm'))
@@ -50,7 +51,7 @@ class FOMC (object):
         if from_year <= self.HISTORICAL_DATE:        
             for year in range(from_year, self.HISTORICAL_DATE + 1):
                 fomc_yearly_url = self.base_url + '/monetarypolicy/fomchistorical' + str(year) + '.htm'
-                fomc_yearly_socket = urlopen(fomc_yearly_url)
+                fomc_yearly_socket = urlopen(Request(fomc_yearly_url, headers=self.headers))
                 soup_yearly = BeautifulSoup(fomc_yearly_socket, 'html.parser')
                 statements_historical = soup_yearly.findAll('a', text = 'Statement')
                 for statement_historical in statements_historical:
@@ -79,7 +80,7 @@ class FOMC (object):
 
         # date of the article content
         self.dates.append(self._date_from_link(link))
-        statement_socket = urlopen(self.base_url + link)
+        statement_socket = urlopen(Request(self.base_url + link, headers=self.headers))
         statement = BeautifulSoup(statement_socket, 'html.parser')
         paragraphs = statement.findAll('p')
         self.articles[index]= "\n\n".join([paragraph.get_text().strip() for paragraph in paragraphs])
@@ -140,5 +141,5 @@ if __name__ == '__main__':
     #Example Usage
     fomc = FOMC()
     df = fomc.get_statements()
-    fomc.pickle("./df_minutes.pickle")
+    fomc.pick_df("./df_minutes.pickle")
 
